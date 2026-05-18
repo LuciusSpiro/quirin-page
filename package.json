@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "homepage": "https://kaiklein91.github.io/quirin-web-page",
+  "homepage": "https://luciusspiro.github.io/quirin-page",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
