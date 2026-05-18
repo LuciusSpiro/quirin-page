@@ -2,4 +2,6 @@ node_modules/
 dist/
 .env.local
 extract_images.py
+fix_images.py
 *.log
+*.py
