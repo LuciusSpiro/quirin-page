@@ -78,7 +78,7 @@ export default function DieWelt() {
           <div className={styles.loreTeaserInner}>
             <div>
               <span className="section-label">Geschichte & Lore</span>
-              <h2>1.200 Jahre im Zeitstrahl</h2>
+              <h2>826 Jahre im Zeitstrahl</h2>
               <p className="text-secondary" style={{ marginTop: 16, maxWidth: 480 }}>
                 Von der Gründung des Reiches bis zur Gegenwart –
                 entdecke die wichtigsten Ereignisse, Kriege und Dynastien.
@@ -93,7 +93,7 @@ export default function DieWelt() {
                 <span className="text-muted">Präfekturen</span>
               </div>
               <div className={styles.loreStat}>
-                <strong className="font-display text-gold" style={{ fontSize: 48 }}>1.200+</strong>
+                <strong className="font-display text-gold" style={{ fontSize: 48 }}>826</strong>
                 <span className="text-muted">Jahre Fiktion</span>
               </div>
               <div className={styles.loreStat}>

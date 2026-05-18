@@ -67,15 +67,15 @@ export const ereignisse: Ereignis[] = [
   },
   {
     id: 'freyhafener-charta',
-    jahr: 950,
+    jahr: 430,
     titel: 'Freyhafener Handelscharta',
     beschreibung: 'Freyhafen erhält durch kaiserliches Dekret das Privileg der Selbstverwaltung seiner Kaufmannsgilden. Eine neue Ära des Handels beginnt.',
     typ: 'Handel',
   },
   {
     id: 'heute',
-    jahr: 1200,
-    titel: 'Die Gegenwart – Quirin 3.0',
+    jahr: 826,
+    titel: 'Die Gegenwart – Jahr 826',
     beschreibung: 'Das Kaiserreich steht vor neuen Herausforderungen. Adelsintrigen, Magie-Spannungen und äußere Bedrohungen fordern Krieger und Edle gleichermaßen. Eine neue Generation schreibt die Geschichte.',
     typ: 'Dynastisch',
   },

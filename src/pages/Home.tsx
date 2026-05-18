@@ -78,7 +78,7 @@ export default function Home() {
               {
                 icon: '📜',
                 label: 'Geschichte',
-                title: '1.200 Jahre Lore',
+                title: '826 Jahre Lore',
                 desc: 'Eine lebendige Welt mit Jahrhunderten von Geschichte, Kriegen, Dynastien und Legenden.',
                 to: '/geschichte',
               },
@@ -119,7 +119,7 @@ export default function Home() {
                   { val: '1999', lab: 'Gründungsjahr' },
                   { val: '3.0', lab: 'Aktuelle Version' },
                   { val: '8', lab: 'Regionen' },
-                  { val: '1.200+', lab: 'Jahre Lore' },
+                  { val: '826', lab: 'Jahre Lore' },
                 ].map(s => (
                   <div key={s.val} className={styles.stat}>
                     <strong className="text-gold font-display" style={{ fontSize: 32 }}>{s.val}</strong>
