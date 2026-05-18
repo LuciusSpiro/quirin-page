@@ -1,0 +1,109 @@
+.page { min-height: 100vh; }
+
+.pageHeader {
+  padding-top: calc(var(--nav-height) + 64px);
+  padding-bottom: 64px;
+  background: radial-gradient(ellipse 80% 60% at 30% 50%, rgba(212,175,55,0.05), transparent 70%);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.regionCard {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  transition: border-color 200ms var(--ease-out), transform 200ms var(--ease-out);
+}
+
+.regionCard:hover { transform: translateY(-4px); }
+
+.regionHeader {
+  padding: 20px 24px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.regionWappen {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+}
+
+.regionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.regionName {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.regionTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.regionArrow {
+  margin-top: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 200ms var(--ease-out), transform 200ms var(--ease-out);
+}
+
+.regionCard:hover .regionArrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.loreTeaser {}
+
+.loreTeaserInner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.loreTeaserStats {
+  display: flex;
+  gap: 48px;
+}
+
+.loreStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+@media (max-width: 1200px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .grid { grid-template-columns: 1fr; }
+  .loreTeaserStats { gap: 24px; }
+}

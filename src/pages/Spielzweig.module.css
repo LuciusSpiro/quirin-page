@@ -1,0 +1,74 @@
+.page { min-height: 100vh; }
+
+.header {
+  padding-top: calc(var(--nav-height) + 48px);
+  padding-bottom: 64px;
+}
+
+.breadcrumb {
+  font-size: 13px;
+  color: var(--fg-muted);
+  margin-bottom: 24px;
+}
+
+.breadcrumb a {
+  text-decoration: none;
+  transition: color 150ms var(--ease-out);
+}
+
+.breadcrumb a:hover { color: var(--fg-primary); }
+
+.headerIcon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.sauelen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.saulHeader {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.saulIcon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.detailList {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detailList li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--fg-secondary);
+}
+
+.philosophie { padding: 0; }
+
+.philosophieInner {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .sauelen { grid-template-columns: 1fr; }
+  .philosophieInner { grid-template-columns: 1fr; gap: 32px; }
+}

@@ -1,0 +1,131 @@
+.page { min-height: 100vh; }
+
+.header {
+  padding-top: calc(var(--nav-height) + 64px);
+  padding-bottom: 64px;
+  background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(212,175,55,0.04), transparent 70%);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 64px;
+}
+
+.timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.timelineAxis {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--border-gold), var(--border-gold), transparent);
+  transform: translateX(-50%);
+}
+
+.ereignis {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  padding: 24px 0;
+  position: relative;
+  width: 46%;
+}
+
+.links {
+  align-self: flex-start;
+  flex-direction: row-reverse;
+  margin-left: 0;
+}
+
+.rechts {
+  align-self: flex-end;
+  flex-direction: row;
+  margin-left: auto;
+}
+
+.marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid;
+  background: var(--bg-page);
+  flex-shrink: 0;
+  margin-top: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.links .marker { margin-right: -38px; }
+.rechts .marker { margin-left: -38px; }
+
+.ereignisCard {
+  flex: 1;
+  cursor: pointer;
+  transition: border-color 150ms var(--ease-out), transform 150ms var(--ease-out);
+  outline: none;
+}
+
+.ereignisCard:focus-visible { box-shadow: var(--glow-gold); }
+.ereignisCard:hover { transform: translateY(-2px); }
+.ereignisCardOpen { border-color: var(--border-gold); }
+
+.ereignisHeader {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ereignisJahr {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.ereignisBody {
+  overflow: hidden;
+  padding: 0 20px;
+}
+
+.ereignisBody p { padding-bottom: 16px; }
+
+.expandHint {
+  padding: 8px 20px 12px;
+  font-size: 11px;
+  color: var(--fg-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .timelineAxis { left: 16px; }
+
+  .ereignis {
+    width: 100%;
+    flex-direction: column !important;
+    padding-left: 48px;
+    margin-left: 0 !important;
+    align-self: stretch !important;
+  }
+
+  .marker {
+    position: absolute;
+    left: 10px;
+    top: 28px;
+    margin: 0 !important;
+  }
+
+  .ereignisCard { width: 100%; }
+}

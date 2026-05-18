@@ -1,0 +1,25 @@
+.page {
+  min-height: 100vh;
+  padding-top: calc(var(--nav-height) + 64px);
+  padding-bottom: 80px;
+}
+
+.content {
+  max-width: 700px;
+}
+
+.section {
+  margin-top: 40px;
+}
+
+.section h3 {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+}
+
+.link {
+  color: var(--gold-300);
+  text-decoration: none;
+}
+
+.link:hover { color: var(--gold-200); }

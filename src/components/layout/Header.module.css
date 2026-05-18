@@ -1,0 +1,237 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  transition: background 300ms var(--ease-out), border-color 300ms var(--ease-out);
+  border-bottom: 1px solid transparent;
+}
+
+.scrolled {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border-bottom-color: var(--border-default);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logoMark {
+  color: var(--gold-300);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.logoText {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--fg-primary);
+  letter-spacing: -0.01em;
+}
+
+.logoText em {
+  font-style: italic;
+  color: var(--gold-300);
+  font-weight: 400;
+}
+
+/* Desktop nav */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.navItemWrap {
+  position: relative;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--fg-secondary);
+  transition: color 150ms var(--ease-out), background 150ms var(--ease-out);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.navLink:hover {
+  color: var(--fg-primary);
+  background: var(--border-1);
+}
+
+.navLinkActive {
+  color: var(--gold-300) !important;
+}
+
+.chevron {
+  font-size: 12px;
+  opacity: 0.5;
+  transform: rotate(90deg);
+  display: inline-block;
+}
+
+/* Dropdown */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 180px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: var(--elev-3);
+  z-index: 200;
+}
+
+.dropLink {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--fg-secondary);
+  transition: all 150ms var(--ease-out);
+  text-decoration: none;
+}
+
+.dropLink:hover {
+  background: var(--bg-surface-hi);
+  color: var(--fg-primary);
+}
+
+.dropLinkActive {
+  color: var(--gold-300) !important;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+/* Burger */
+.burger {
+  display: none;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--fg-secondary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.burger span,
+.burger span::before,
+.burger span::after {
+  display: block;
+  width: 18px;
+  height: 1.5px;
+  background: currentColor;
+  position: absolute;
+  transition: all 200ms var(--ease-out);
+}
+
+.burger span::before { content: ''; top: -5px; }
+.burger span::after  { content: ''; top: 5px; }
+
+.burgerClose { background: transparent !important; }
+.burgerClose::before { transform: rotate(45deg); top: 0 !important; }
+.burgerClose::after  { transform: rotate(-45deg); top: 0 !important; }
+
+/* Mobile drawer */
+.drawer {
+  position: fixed;
+  top: var(--nav-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-page);
+  z-index: 99;
+  overflow-y: auto;
+  border-top: 1px solid var(--border-default);
+}
+
+.drawerNav {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 4px;
+}
+
+.drawerLink {
+  display: block;
+  padding: 14px 16px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--fg-secondary);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: color 150ms var(--ease-out);
+}
+
+.drawerLink:hover { color: var(--fg-primary); }
+
+.drawerLinkActive { color: var(--gold-300) !important; }
+
+.drawerSub {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 20px;
+  margin-top: 4px;
+}
+
+.drawerSubLink {
+  display: block;
+  padding: 10px 16px;
+  font-size: 16px;
+  color: var(--fg-muted);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: color 150ms var(--ease-out);
+}
+
+.drawerSubLink:hover { color: var(--fg-primary); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav { display: none; }
+  .burger { display: flex; }
+  .actions .btn { display: none; }
+}
+
+@media (min-width: 769px) {
+  .drawer { display: none; }
+}

@@ -1,0 +1,142 @@
+.page { min-height: 100vh; }
+
+.header {
+  padding-top: calc(var(--nav-height) + 64px);
+  padding-bottom: 64px;
+  background: radial-gradient(ellipse 60% 50% at 30% 60%, rgba(212,175,55,0.05), transparent 70%);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 48px;
+}
+
+.eventGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.eventCard {
+  display: flex;
+  flex-direction: column;
+}
+
+.eventHeader {
+  padding: 24px;
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.eventPreis {
+  flex-shrink: 0;
+}
+
+.eventMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+.plaetzeBar {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.plaetzeTrack {
+  flex: 1;
+  height: 3px;
+  background: var(--ink-5);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.plaetzeFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 400ms var(--ease-out);
+}
+
+.eventBtn {
+  width: 100%;
+  margin-top: 24px;
+}
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--elev-3);
+  overflow: hidden;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  padding: 24px;
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.modalClose {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-muted);
+  font-size: 14px;
+  transition: all 150ms var(--ease-out);
+  flex-shrink: 0;
+}
+
+.modalClose:hover { background: var(--bg-surface-hi); color: var(--fg-primary); }
+
+.modalBody {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modalPrice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: rgba(212,175,55,0.05);
+  border: 1px solid var(--border-gold);
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .eventGrid { grid-template-columns: 1fr; }
+}
