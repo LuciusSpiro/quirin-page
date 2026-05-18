@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { regionen } from '../data/regionen';
+import { img } from '../utils/assets';
 import styles from './DieWelt.module.css';
 
 export default function DieWelt() {
@@ -41,7 +42,7 @@ export default function DieWelt() {
                     style={{ background: `linear-gradient(135deg, ${region.farbe}18, ${region.farbe}08)` }}
                   >
                     <img
-                      src={region.wappen}
+                      src={img(region.wappen)}
                       alt={`Wappen ${region.name}`}
                       className={styles.regionWappen}
                     />

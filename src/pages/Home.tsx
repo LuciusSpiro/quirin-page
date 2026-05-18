@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { news } from '../data/news';
+import { img } from '../utils/assets';
 import styles from './Home.module.css';
 
 const fade = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } };
@@ -10,7 +11,7 @@ export default function Home() {
     <div className={styles.page}>
       {/* ── Hero ── */}
       <section className={styles.hero}>
-        <div className={styles.heroBg} />
+        <div className={styles.heroBg} style={{ backgroundImage: `url(${img('/images/hero-castle.png')})` }} />
         <div className={styles.heroGradient} />
         <div className={`container ${styles.heroContent}`}>
           <motion.div
@@ -19,7 +20,7 @@ export default function Home() {
             variants={{ show: { transition: { staggerChildren: 0.15 } } }}
           >
             <motion.img
-              src="/images/wappen-kaiserreich.png"
+              src={img('/images/wappen-kaiserreich.png')}
               alt="Wappen des Kaiserreichs Quirin"
               className={styles.heroWappen}
               variants={fade}

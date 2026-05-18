@@ -14,7 +14,6 @@
 .heroBg {
   position: absolute;
   inset: 0;
-  background-image: url('/images/hero-castle.png');
   background-size: cover;
   background-position: center 30%;
   filter: brightness(0.35) saturate(0.7);

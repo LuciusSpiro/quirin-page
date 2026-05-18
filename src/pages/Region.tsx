@@ -1,6 +1,7 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getRegionById, regionen } from '../data/regionen';
+import { img } from '../utils/assets';
 import styles from './Region.module.css';
 
 export default function Region() {
@@ -35,7 +36,7 @@ export default function Region() {
             className={styles.headerContent}
           >
             <img
-              src={region.wappen}
+              src={img(region.wappen)}
               alt={`Wappen ${region.name}`}
               className={styles.headerWappen}
             />

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { img } from '../utils/assets';
 import styles from './Galerie.module.css';
 
 type GalerieKat = 'Alle' | 'Regionen' | 'Events' | 'Artwork';
@@ -88,7 +89,7 @@ export default function Galerie() {
                 >
                   {b.src ? (
                     <img
-                      src={b.src}
+                      src={img(b.src)}
                       alt={b.alt}
                       className={styles.realImg}
                     />
@@ -118,7 +119,7 @@ export default function Galerie() {
             onClick={e => e.stopPropagation()}
           >
             {lightbox.src ? (
-              <img src={lightbox.src} alt={lightbox.alt} className={styles.lightboxRealImg} />
+              <img src={img(lightbox.src)} alt={lightbox.alt} className={styles.lightboxRealImg} />
             ) : (
               <div className={styles.placeholder}>
                 <span style={{ fontSize: 64 }}>🖼</span>
