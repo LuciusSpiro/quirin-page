@@ -50,7 +50,7 @@ export default function DieWelt() {
                       <div className={styles.regionLabel}>{region.schlagwort}</div>
                     </div>
                   </div>
-                  <div className="card-body">
+                  <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                     <h3 className={styles.regionName}>{region.name}</h3>
                     <p className="text-secondary" style={{ fontSize: 14, lineHeight: 1.65, marginTop: 10 }}>
                       {region.beschreibung}

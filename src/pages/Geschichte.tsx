@@ -23,7 +23,7 @@ export default function Geschichte() {
             <span className="section-label">Zeitstrahl</span>
             <h1 style={{ marginTop: 8 }}>Geschichte des Reiches</h1>
             <p className="text-secondary" style={{ maxWidth: 560, marginTop: 16, fontSize: 18, lineHeight: 1.7 }}>
-              826 Jahre Fiktion – von der Befreiung aus den Chaos-Herden
+              826 Jahre Fiktion – vom Befreiungskrieg gegen die Horden der Finsternis
               bis zur lebendigen Gegenwart des Kaiserreichs Quirin im Jahr 826.
             </p>
           </motion.div>
@@ -56,6 +56,7 @@ export default function Geschichte() {
                     height: 6,
                     borderRadius: '50%',
                     background: typFarben[t],
+                    marginRight: 5,
                   }}
                 />
                 {t}

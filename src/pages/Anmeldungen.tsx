@@ -4,7 +4,7 @@ import { events, formatDatum, type Event } from '../data/events';
 import styles from './Anmeldungen.module.css';
 
 type Kategorie = Event['kategorie'] | 'Alle';
-const kategorien: Kategorie[] = ['Alle', 'Kriegerspiel', 'Adelsspiel', 'Gemeinschaft', 'Sonstiges'];
+const kategorien: Kategorie[] = ['Alle', 'Kriegerspiel', 'Adelsspiel', 'Gemeinschaft', 'Akademie', 'Sonstiges'];
 
 function PlaetzeBar({ frei, gesamt }: { frei: number; gesamt: number }) {
   const pct = ((gesamt - frei) / gesamt) * 100;
@@ -24,6 +24,9 @@ function PlaetzeBar({ frei, gesamt }: { frei: number; gesamt: number }) {
 function BuchungsModal({ event: ev, onClose }: { event: Event; onClose: () => void }) {
   const [step, setStep] = useState<'form' | 'confirm'>('form');
   const [form, setForm] = useState({ name: '', email: '', charname: '' });
+  const [staffelIndex, setStaffelIndex] = useState(0);
+
+  const preis = ev.staffeln ? ev.staffeln[staffelIndex].preis : ev.preis;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,10 +83,28 @@ function BuchungsModal({ event: ev, onClose }: { event: Event; onClose: () => vo
               />
             </div>
 
+            {ev.staffeln && (
+              <div className="field">
+                <label className="field-label">Staffel</label>
+                <div className={styles.filters} style={{ marginBottom: 0 }}>
+                  {ev.staffeln.map((s, i) => (
+                    <button
+                      key={s.name}
+                      type="button"
+                      className={`chip ${staffelIndex === i ? 'active' : ''}`}
+                      onClick={() => setStaffelIndex(i)}
+                    >
+                      {s.name} – {s.preis} €
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className={styles.modalPrice}>
               <span className="text-muted">Gesamtbetrag</span>
               <strong className="font-display text-gold" style={{ fontSize: 28 }}>
-                {ev.preis},00 €
+                {preis},00 €
               </strong>
             </div>
 
@@ -172,6 +193,7 @@ export default function Anmeldungen() {
                     <h3 style={{ margin: '12px 0 0' }}>{ev.titel}</h3>
                   </div>
                   <div className={styles.eventPreis}>
+                    {ev.staffeln && <span className="text-muted" style={{ fontSize: 12, display: 'block' }}>ab</span>}
                     <strong className="font-display text-gold" style={{ fontSize: 28 }}>
                       {ev.preis} €
                     </strong>

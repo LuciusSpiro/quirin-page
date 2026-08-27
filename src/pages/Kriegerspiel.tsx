@@ -17,7 +17,8 @@ const sauelen = [
   },
   {
     titel: 'Banner 21',
-    icon: '🏴',
+    icon: '⚑',
+    iconColor: 'var(--gold-300)',
     beschreibung: 'Die aktive Spielergruppe innerhalb des Kriegerspiels. Banner 21 nimmt an allen Kriegerspielereignissen teil und repräsentiert die lebendige Gemeinschaft der Kämpfer.',
     details: ['Gruppenspiel', 'Aktive Events', 'Gemeinschaft', 'Turniere'],
   },
@@ -63,7 +64,7 @@ export default function Kriegerspiel() {
                 transition={{ delay: i * 0.1 }}
               >
                 <div className={styles.saulHeader}>
-                  <span className={styles.saulIcon}>{s.icon}</span>
+                  <span className={styles.saulIcon} style={{ color: s.iconColor }}>{s.icon}</span>
                   <h3>{s.titel}</h3>
                 </div>
                 <div className="card-body">

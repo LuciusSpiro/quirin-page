@@ -1,0 +1,216 @@
+/* ── Site header (ported from Header.tsx / Header.module.css) ── */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  transition: background 300ms var(--ease-out), border-color 300ms var(--ease-out);
+  border-bottom: 1px solid transparent;
+}
+
+.site-header.is-scrolled {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border-bottom-color: var(--border-default);
+}
+
+.site-header .inner {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.site-header .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.site-header .logo-mark { color: var(--gold-300); font-size: 20px; line-height: 1; }
+
+.site-header .logo-text {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--fg-primary);
+  letter-spacing: -0.01em;
+}
+
+.site-header .logo-text em { font-style: italic; color: var(--gold-300); font-weight: 400; }
+
+.site-header .nav { display: flex; align-items: center; gap: 4px; flex: 1; }
+
+.site-header .nav-item-wrap { position: relative; }
+
+.site-header .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--fg-secondary);
+  transition: color 150ms var(--ease-out), background 150ms var(--ease-out);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.site-header .nav-link:hover { color: var(--fg-primary); background: var(--border-1); }
+.site-header .nav-link.is-active { color: var(--gold-300) !important; }
+
+.site-header .chevron { font-size: 12px; opacity: 0.5; transform: rotate(90deg); display: inline-block; }
+
+.site-header .dropdown {
+  /* top:100% ohne Luecke zum Trigger - ein Abstand hier wuerde eine "tote Zone"
+     erzeugen, in der :hover kurz verloren geht und das Dropdown verschwindet,
+     bevor die Maus es erreicht. */
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 180px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: var(--elev-3);
+  z-index: 200;
+}
+.site-header .nav-item-wrap:hover .dropdown,
+.site-header .nav-item-wrap.is-open .dropdown { display: flex; }
+
+.site-header .drop-link {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--fg-secondary);
+  transition: all 150ms var(--ease-out);
+  text-decoration: none;
+}
+.site-header .drop-link:hover { background: var(--bg-surface-hi); color: var(--fg-primary); }
+.site-header .drop-link.is-active { color: var(--gold-300) !important; }
+
+.site-header .actions { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+
+.site-header .burger {
+  display: none;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--fg-secondary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  position: relative;
+  flex-shrink: 0;
+}
+.site-header .burger span,
+.site-header .burger span::before,
+.site-header .burger span::after {
+  display: block;
+  width: 18px;
+  height: 1.5px;
+  background: currentColor;
+  position: absolute;
+  transition: all 200ms var(--ease-out);
+}
+.site-header .burger span::before { content: ''; top: -5px; }
+.site-header .burger span::after  { content: ''; top: 5px; }
+.site-header .burger.is-open span { background: transparent !important; }
+.site-header .burger.is-open span::before { transform: rotate(45deg); top: 0 !important; }
+.site-header .burger.is-open span::after  { transform: rotate(-45deg); top: 0 !important; }
+
+.site-header .drawer {
+  position: fixed;
+  top: var(--nav-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-page);
+  z-index: 99;
+  overflow-y: auto;
+  border-top: 1px solid var(--border-default);
+  display: none;
+}
+.site-header .drawer.is-open { display: block; }
+
+.site-header .drawer-nav { display: flex; flex-direction: column; padding: 24px; gap: 4px; }
+
+.site-header .drawer-link {
+  display: block;
+  padding: 14px 16px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--fg-secondary);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: color 150ms var(--ease-out);
+}
+.site-header .drawer-link:hover { color: var(--fg-primary); }
+.site-header .drawer-link.is-active { color: var(--gold-300) !important; }
+
+.site-header .drawer-sub { display: flex; flex-direction: column; gap: 2px; padding-left: 20px; margin-top: 4px; }
+
+.site-header .drawer-sub-link {
+  display: block;
+  padding: 10px 16px;
+  font-size: 16px;
+  color: var(--fg-muted);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: color 150ms var(--ease-out);
+}
+.site-header .drawer-sub-link:hover { color: var(--fg-primary); }
+
+@media (max-width: 768px) {
+  .site-header .nav { display: none; }
+  .site-header .burger { display: flex; }
+  .site-header .actions .btn { display: none; }
+}
+@media (min-width: 769px) {
+  .site-header .drawer { display: none !important; }
+}
+
+/* ── Site footer (ported from Footer.tsx / Footer.module.css) ── */
+.site-footer { background: var(--ink-0); padding-top: 0; margin-top: 80px; }
+
+.site-footer .inner { display: flex; gap: 64px; padding-top: 56px; padding-bottom: 48px; }
+
+.site-footer .brand { display: flex; align-items: flex-start; gap: 14px; flex-shrink: 0; }
+.site-footer .brand-mark { color: var(--gold-300); font-size: 24px; margin-top: 2px; }
+.site-footer .brand-name { font-family: var(--font-display); font-size: 22px; font-weight: 500; color: var(--fg-primary); }
+.site-footer .brand-name em { font-style: italic; color: var(--gold-300); font-weight: 400; }
+.site-footer .brand-sub { font-size: 12px; color: var(--fg-muted); margin-top: 4px; letter-spacing: 0.04em; }
+
+.site-footer .links { display: flex; gap: 48px; flex-wrap: wrap; }
+.site-footer .link-group { display: flex; flex-direction: column; gap: 12px; min-width: 120px; }
+.site-footer .link-group a { font-size: 14px; color: var(--fg-muted); text-decoration: none; transition: color 150ms var(--ease-out); }
+.site-footer .link-group a:hover { color: var(--fg-primary); }
+
+.site-footer .bottom {
+  padding-top: 24px;
+  padding-bottom: 32px;
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+.site-footer .bottom a { color: var(--gold-300); text-decoration: none; transition: color 150ms var(--ease-out); }
+.site-footer .bottom a:hover { color: var(--gold-200); }
+
+@media (max-width: 768px) {
+  .site-footer .inner { flex-direction: column; gap: 40px; }
+  .site-footer .links { gap: 32px; }
+  .site-footer .bottom { flex-direction: column; gap: 8px; text-align: center; }
+}

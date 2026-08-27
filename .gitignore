@@ -5,3 +5,16 @@ extract_images.py
 fix_images.py
 *.log
 *.py
+hintergrund/quirinlarp.WordPress.2026-07-01.xml
+hintergrund/quirinlarp-scrubbed-for-dev.xml
+
+# Local WordPress dev stack (Docker) - only the quirin-larp theme itself is versioned
+wordpress/wp-content/uploads/
+wordpress/wp-content/plugins/
+wordpress/wp-content/upgrade/
+wordpress/wp-content/mu-plugins/
+wordpress/wp-content/*.log
+wordpress/wp-content/debug.log
+wordpress/wp-content/themes/twentytwentythree/
+wordpress/wp-content/themes/twentytwentyfour/
+wordpress/wp-content/themes/twentytwentyfive/

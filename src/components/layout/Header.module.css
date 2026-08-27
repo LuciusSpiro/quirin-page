@@ -110,6 +110,17 @@
   z-index: 200;
 }
 
+/* Unsichtbare Brücke über die 8px-Lücke zum Nav-Link, damit der Hover beim
+   Runterfahren zum Dropdown nicht abreißt. */
+.dropdown::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 8px;
+}
+
 .dropLink {
   padding: 10px 14px;
   border-radius: 6px;

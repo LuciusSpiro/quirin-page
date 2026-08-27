@@ -1,3 +1,8 @@
+export interface Staffel {
+  name: string;
+  preis: number;
+}
+
 export interface Event {
   id: string;
   titel: string;
@@ -8,55 +13,97 @@ export interface Event {
   preis: number;
   plaetze: number;
   plaetzeFrei: number;
-  kategorie: 'Kriegerspiel' | 'Adelsspiel' | 'Gemeinschaft' | 'Sonstiges';
+  kategorie: 'Kriegerspiel' | 'Adelsspiel' | 'Gemeinschaft' | 'Sonstiges' | 'Akademie';
   stripeProductId?: string;
+  /** Gestaffelte Frühbucherpreise (z.B. Akademie-Lehrgänge). Wenn gesetzt, ist `preis` der günstigste Tarif. */
+  staffeln?: Staffel[];
 }
 
 export const events: Event[] = [
   {
-    id: 'sommerfest-2026',
-    titel: 'Großes Sommerfest des Reiches',
-    datum: '2026-07-18',
-    datumEnde: '2026-07-20',
-    ort: 'Festungsgelände Talborn',
-    beschreibung: 'Das jährliche Sommerfest vereint alle Stände des Reiches zu drei Tagen Spiel, Turnier und Festbankett. Krieger messen ihre Kräfte, Adlige pflegen ihre Allianzen und Händler schließen Geschäfte.',
-    preis: 45,
-    plaetze: 80,
-    plaetzeFrei: 32,
-    kategorie: 'Gemeinschaft',
-  },
-  {
-    id: 'turnier-bund-der-klingen-2026',
-    titel: 'Turnier des Bund der Klingen',
-    datum: '2026-08-29',
-    ort: 'Quiriner Kriegerakademie',
-    beschreibung: 'Das alljährliche Turnier des Bund der Klingen. Kämpfer aller Schulen messen sich in Einzel- und Gruppenkämpfen. Sieger erhalten Ehre, Titel und Preise.',
-    preis: 20,
-    plaetze: 40,
-    plaetzeFrei: 15,
-    kategorie: 'Kriegerspiel',
-  },
-  {
-    id: 'hofball-herbst-2026',
-    titel: 'Herbstlicher Hofball der Fürstentümer',
-    datum: '2026-10-10',
-    ort: 'Palast Navalis, Talborn',
-    beschreibung: 'Ein Abend der Diplomatie und des Intrigenspiels. Die Adelshäuser des Reiches treffen sich zum großen Herbstball – ein Ort, an dem Allianzen geschmiedet und Verrat geflüstert wird.',
-    preis: 35,
+    id: 'akademie-krieger-2027',
+    titel: 'Kriegerakademie: Ausbildung Krieger',
+    datum: '2027-05-05',
+    datumEnde: '2027-05-09',
+    ort: '97239 Aub',
+    beschreibung: 'Der Grundlehrgang der Akademie widmet sich der Kampf- und Kriegskunst: Formal- und Gefechtsdienst, Erste Hilfe auf dem Schlachtfeld und die Fechtschule des Einhandschwerts. Schwerpunkt ist der Gruppenkampf – das Fundament jeder militärischen Ausbildung.',
+    preis: 100,
     plaetze: 50,
-    plaetzeFrei: 28,
-    kategorie: 'Adelsspiel',
+    plaetzeFrei: 50,
+    kategorie: 'Akademie',
+    staffeln: [
+      { name: 'Erste Staffel', preis: 100 },
+      { name: 'Zweite Staffel', preis: 110 },
+      { name: 'Dritte Staffel', preis: 120 },
+    ],
   },
   {
-    id: 'einstieg-november-2026',
-    titel: 'Einstiegsevent für Neulinge',
-    datum: '2026-11-07',
-    ort: 'Freyhafen',
-    beschreibung: 'Speziell für neue Spieler: Ein Samstag voller Einführungen in Regeln, Kampftechnik und Spielwelt. Erfahrene Spieler begleiten die Neulinge. Perfekter Einstieg ins Kaiserreich Quirin.',
-    preis: 10,
+    id: 'akademie-spaeher-2027',
+    titel: 'Kriegerakademie: Ausbildung Späher',
+    datum: '2027-05-05',
+    datumEnde: '2027-05-09',
+    ort: '97239 Aub',
+    beschreibung: 'Ausbildung für Kundschafter, Saboteure und Attentäter: Spurenlesen, lautlose Handzeichen, Geländeorientierung sowie das Lesen und Zeichnen von Karten. Höhepunkt ist der berüchtigte Fallenparkour.',
+    preis: 100,
     plaetze: 20,
-    plaetzeFrei: 14,
-    kategorie: 'Sonstiges',
+    plaetzeFrei: 20,
+    kategorie: 'Akademie',
+    staffeln: [
+      { name: 'Erste Staffel', preis: 100 },
+      { name: 'Zweite Staffel', preis: 110 },
+      { name: 'Dritte Staffel', preis: 120 },
+    ],
+  },
+  {
+    id: 'akademie-offizier-2027',
+    titel: 'Kriegerakademie: Ausbildung Offizier',
+    datum: '2027-05-05',
+    datumEnde: '2027-05-09',
+    ort: '97239 Aub',
+    beschreibung: 'Der Aufbaulehrgang für angehende Heerführer: Strategie, Menschenführung und das Führen im Gefecht unter schwierigen Bedingungen. Ein erfolgreicher Abschluss als Krieger oder Späher wird vorausgesetzt – bitte vor der Anmeldung Kontakt mit der Spielleitung aufnehmen.',
+    preis: 100,
+    plaetze: 9,
+    plaetzeFrei: 9,
+    kategorie: 'Akademie',
+    staffeln: [
+      { name: 'Erste Staffel', preis: 100 },
+      { name: 'Zweite Staffel', preis: 110 },
+      { name: 'Dritte Staffel', preis: 120 },
+    ],
+  },
+  {
+    id: 'akademie-feldscher-2027',
+    titel: 'Kriegerakademie: Ausbildung Feldscher',
+    datum: '2027-05-05',
+    datumEnde: '2027-05-09',
+    ort: '97239 Aub',
+    beschreibung: 'Der Kampfheiler-Lehrgang verbindet die Grundlagen des Kriegers mit denen des Heilers: Erste Hilfe und taktische Verwundetenversorgung mitten im Gefecht, als Teil einer Krieger- oder Spähergruppe.',
+    preis: 100,
+    plaetze: 15,
+    plaetzeFrei: 15,
+    kategorie: 'Akademie',
+    staffeln: [
+      { name: 'Erste Staffel', preis: 100 },
+      { name: 'Zweite Staffel', preis: 110 },
+      { name: 'Dritte Staffel', preis: 120 },
+    ],
+  },
+  {
+    id: 'akademie-tross-2027',
+    titel: 'Kriegerakademie: Ausbildung Tross',
+    datum: '2027-05-05',
+    datumEnde: '2027-05-09',
+    ort: '97239 Aub',
+    beschreibung: 'Kein durchgetakteter Lehrgang, sondern das Rückgrat des Lagers: Feldküche, Schmiede, Mannschaftsheim und Belagerungswaffen. Optionale Prüfung für das Quiriner Tross-Abzeichen für alle, die das Lagerleben bereichern möchten.',
+    preis: 90,
+    plaetze: 25,
+    plaetzeFrei: 25,
+    kategorie: 'Akademie',
+    staffeln: [
+      { name: 'Erste Staffel', preis: 90 },
+      { name: 'Zweite Staffel', preis: 100 },
+      { name: 'Dritte Staffel', preis: 110 },
+    ],
   },
 ];
 
