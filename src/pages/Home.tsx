@@ -11,7 +11,7 @@ export default function Home() {
     <div className={styles.page}>
       {/* ── Hero ── */}
       <section className={styles.hero}>
-        <div className={styles.heroBg} style={{ backgroundImage: `url(${img('/images/hero-castle.png')})` }} />
+        <div className={styles.heroBg} style={{ backgroundImage: `url(${img('/images/group.jpg')})` }} />
         <div className={styles.heroGradient} />
         <div className={`container ${styles.heroContent}`}>
           <motion.div

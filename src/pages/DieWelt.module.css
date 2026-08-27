@@ -6,6 +6,30 @@
   background: radial-gradient(ellipse 80% 60% at 30% 50%, rgba(212,175,55,0.05), transparent 70%);
 }
 
+.mapFrame {
+  margin: 0;
+  border: 1px solid var(--border-gold);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-surface);
+  box-shadow: var(--elev-3);
+}
+
+.mapImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mapCaption {
+  padding: 14px 20px;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--fg-muted);
+  text-align: center;
+  border-top: 1px solid var(--border-default);
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

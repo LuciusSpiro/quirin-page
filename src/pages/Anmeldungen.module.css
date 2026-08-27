@@ -1,9 +1,31 @@
 .page { min-height: 100vh; }
 
 .header {
+  position: relative;
   padding-top: calc(var(--nav-height) + 64px);
   padding-bottom: 64px;
-  background: radial-gradient(ellipse 60% 50% at 30% 60%, rgba(212,175,55,0.05), transparent 70%);
+  overflow: hidden;
+}
+
+.headerBg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 40%;
+  filter: brightness(0.4) saturate(0.75);
+}
+
+.headerGradient {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, var(--bg-page) 0%, rgba(10,10,11,0.6) 40%, transparent 100%),
+    linear-gradient(to bottom, transparent 40%, var(--bg-page) 100%);
+}
+
+.headerContent {
+  position: relative;
+  z-index: 2;
 }
 
 .filters {

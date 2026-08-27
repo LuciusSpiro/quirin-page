@@ -26,6 +26,30 @@ export default function DieWelt() {
 
       <div className="divider-gold" />
 
+      {/* Gesamtkarte */}
+      <section className="section-sm">
+        <div className="container">
+          <span className="section-label">Gesamtkarte</span>
+          <h2 style={{ marginTop: 8, marginBottom: 24 }}>Das Kaiserreich auf einen Blick</h2>
+          <motion.figure
+            className={styles.mapFrame}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <img
+              src={img('/images/quirin-karte.jpg')}
+              alt="Gesamtkarte des Kaiserreichs Quirin mit allen acht Präfekturen"
+              className={styles.mapImage}
+            />
+            <figcaption className={styles.mapCaption}>
+              Die acht Präfekturen des Kaiserreichs Quirin
+            </figcaption>
+          </motion.figure>
+        </div>
+      </section>
+
       <section className="section">
         <div className="container">
           <div className={styles.grid}>

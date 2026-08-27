@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ereignisse, typFarben, type EreignisTyp } from '../data/timeline';
+import { img } from '../utils/assets';
 import styles from './Geschichte.module.css';
 
 const alleTypen: EreignisTyp[] = ['Krieg', 'Dynastisch', 'Katastrophe', 'Gründung', 'Magie', 'Handel'];
@@ -18,7 +19,9 @@ export default function Geschichte() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <div className="container">
+        <div className={styles.headerBg} style={{ backgroundImage: `url(${img('/images/kernland.jpg')})` }} />
+        <div className={styles.headerGradient} />
+        <div className={`container ${styles.headerContent}`}>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <span className="section-label">Zeitstrahl</span>
             <h1 style={{ marginTop: 8 }}>Geschichte des Reiches</h1>

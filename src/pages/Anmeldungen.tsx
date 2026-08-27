@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { events, formatDatum, type Event } from '../data/events';
+import { img } from '../utils/assets';
 import styles from './Anmeldungen.module.css';
 
 type Kategorie = Event['kategorie'] | 'Alle';
@@ -147,7 +148,9 @@ export default function Anmeldungen() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <div className="container">
+        <div className={styles.headerBg} style={{ backgroundImage: `url(${img('/images/apellplatz.jpg')})` }} />
+        <div className={styles.headerGradient} />
+        <div className={`container ${styles.headerContent}`}>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <span className="section-label">Events</span>
             <h1 style={{ marginTop: 8 }}>Anmeldungen</h1>
