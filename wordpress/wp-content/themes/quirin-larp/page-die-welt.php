@@ -31,7 +31,7 @@ $anzahl = $regionen_query->post_count;
             <div class="region-grid">
                 <?php while ($regionen_query->have_posts()) : $regionen_query->the_post();
                     $farbe   = get_field('region_farbe') ?: '#D4AF37';
-                    $wappen  = get_field('region_wappen');
+                    $wappen  = quirin_region_wappen_url(get_the_ID());
                     $kultur  = array_filter(array_map('trim', explode("\n", (string) get_field('region_kultur'))));
                 ?>
                     <a href="<?php the_permalink(); ?>" class="card region-card">
@@ -56,6 +56,17 @@ $anzahl = $regionen_query->post_count;
                     </a>
                 <?php endwhile; wp_reset_postdata(); ?>
             </div>
+        </div>
+    </section>
+
+    <section class="section" style="padding-top:0;">
+        <div class="container">
+            <figure style="margin:0;text-align:center;">
+                <img src="<?php echo esc_url(get_theme_file_uri('/assets/images/quirin-karte.jpg')); ?>"
+                     alt="Gesamtkarte des Kaiserreichs Quirin mit allen acht Präfekturen"
+                     style="width:100%;max-width:900px;height:auto;border-radius:12px;border:1px solid var(--border-default);box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+                <figcaption class="text-muted" style="margin-top:16px;font-size:14px;">Die acht Präfekturen des Kaiserreichs Quirin</figcaption>
+            </figure>
         </div>
     </section>
 

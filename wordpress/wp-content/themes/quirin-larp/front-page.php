@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; get_header();
 
 $shop_url = class_exists('WooCommerce') ? wc_get_page_permalink('shop') : home_url('/anmeldungen/');
-$hero_bg  = get_theme_file_uri('/assets/images/hero-castle.png');
+$hero_bg  = get_theme_file_uri('/assets/images/group.jpg');
 $wappen   = get_theme_file_uri('/assets/images/wappen-kaiserreich.png');
 
 $features = array(

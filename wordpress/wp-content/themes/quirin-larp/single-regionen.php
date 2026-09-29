@@ -14,7 +14,7 @@ $next       = ($idx !== false && $idx < count($all_regionen) - 1) ? $all_regione
 
 while (have_posts()) : the_post();
     $farbe  = get_field('region_farbe') ?: '#D4AF37';
-    $wappen = get_field('region_wappen');
+    $wappen = quirin_region_wappen_url(get_the_ID());
     $kultur = array_filter(array_map('trim', explode("\n", (string) get_field('region_kultur'))));
 ?>
 

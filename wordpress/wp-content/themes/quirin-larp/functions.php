@@ -45,6 +45,26 @@ function quirin_enqueue_assets() {
 }
 add_action('wp_enqueue_scripts', 'quirin_enqueue_assets');
 
+/**
+ * Wappen-URL einer Region. Bevorzugt das ACF-Bildfeld (falls im Admin manuell
+ * gesetzt), faellt sonst auf das im Theme mitgelieferte Wappen anhand des
+ * Region-Slugs zurueck (assets/images/wappen-{slug}.png). Dadurch funktionieren
+ * die Wappen ohne Mediathek-Abhaengigkeit und ueberstehen einen WXR-Import
+ * unbeschadet (keine zerbrechlichen Attachment-IDs).
+ */
+function quirin_region_wappen_url($post_id) {
+    $acf = get_field('region_wappen', $post_id);
+    if ($acf) {
+        return $acf;
+    }
+    $slug = get_post_field('post_name', $post_id);
+    $rel  = '/assets/images/wappen-' . $slug . '.png';
+    if ($slug && file_exists(QUIRIN_THEME_DIR . $rel)) {
+        return QUIRIN_THEME_URI . $rel;
+    }
+    return '';
+}
+
 require_once QUIRIN_THEME_DIR . '/inc/nav-walker.php';
 require_once QUIRIN_THEME_DIR . '/inc/cpt-regionen.php';
 require_once QUIRIN_THEME_DIR . '/inc/cpt-zeitstrahl.php';

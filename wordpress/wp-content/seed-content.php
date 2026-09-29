@@ -3,51 +3,13 @@
  * Einmalig ausfuehrbares Migrations-Skript: befuellt die Regionen-, Zeitstrahl- und
  * FAQ-CPTs mit den Daten aus der React-SPA (src/data/regionen.ts, timeline.ts, FAQ.tsx).
  * Aufruf: wp eval-file wp-content/seed-content.php --allow-root
- * Idempotent: vorhandene Eintraege (per Slug/Titel) werden aktualisiert statt dupliziert.
+ * Idempotent: vorhandene Eintraege (per Slug) werden aktualisiert statt dupliziert.
+ *
+ * Wappen werden NICHT mehr als Mediathek-Bild gesetzt, sondern vom Theme anhand des
+ * Region-Slugs geladen (quirin_region_wappen_url) — dadurch bleibt der Export reiner
+ * Text und der Import auf Live hat keine zerbrechlichen Attachment-IDs.
  */
 if (!defined('ABSPATH')) exit;
-
-function quirin_seed_import_theme_image($relative_path) {
-    static $cache = array();
-    if (isset($cache[$relative_path])) return $cache[$relative_path];
-
-    $src = get_template_directory() . $relative_path;
-    if (!file_exists($src)) {
-        WP_CLI::warning("Bild nicht gefunden: {$relative_path}");
-        return 0;
-    }
-
-    // Bereits importiert? (per Dateiname in den Uploads suchen)
-    $existing = get_posts(array(
-        'post_type'   => 'attachment',
-        'meta_key'    => '_quirin_seed_source',
-        'meta_value'  => $relative_path,
-        'numberposts' => 1,
-    ));
-    if ($existing) {
-        $cache[$relative_path] = $existing[0]->ID;
-        return $existing[0]->ID;
-    }
-
-    $upload_dir = wp_upload_dir();
-    $filename   = wp_unique_filename($upload_dir['path'], basename($src));
-    $dest       = trailingslashit($upload_dir['path']) . $filename;
-    copy($src, $dest);
-
-    $filetype   = wp_check_filetype($filename);
-    $attach_id  = wp_insert_attachment(array(
-        'post_mime_type' => $filetype['type'],
-        'post_title'     => sanitize_file_name(pathinfo($filename, PATHINFO_FILENAME)),
-        'post_status'    => 'inherit',
-    ), $dest);
-
-    require_once ABSPATH . 'wp-admin/includes/image.php';
-    wp_update_attachment_metadata($attach_id, wp_generate_attachment_metadata($attach_id, $dest));
-    update_post_meta($attach_id, '_quirin_seed_source', $relative_path);
-
-    $cache[$relative_path] = $attach_id;
-    return $attach_id;
-}
 
 function quirin_seed_upsert_post($post_type, $slug, $args) {
     $existing = get_posts(array(
@@ -65,56 +27,64 @@ function quirin_seed_upsert_post($post_type, $slug, $args) {
     return wp_insert_post($args);
 }
 
-// ── Regionen ──────────────────────────────────────────────────────────────
+// ── Regionen (Quelle: src/data/regionen.ts) ─────────────────────────────────
 $regionen = array(
-    array('id' => 'talborn', 'name' => 'Kronland Talborn', 'schlagwort' => 'Herz des Reiches',
-        'beschreibung' => 'Das Kronland Talborn ist der Herzschlag des Kaiserreichs – Sitz des Kaisers, der Kriegerakademie und der imperialen Ordnung. Hier wird der Maßstab aller Dinge gesetzt.',
-        'kultur' => array('Militärische Disziplin', 'Imperiale Hierarchie', 'Kriegshandwerk', 'Präzisionsarbeit'),
-        'besonderheiten' => 'Heimat der Quiriner Kriegerakademie und des Kaiserpalastes Navalis. Die Stadt Talborn mit ihren Terrassen, Glockentürmen und Festungsanlagen ist das Fundament des Reiches.',
-        'farbe' => '#8E7023', 'wappen' => '/assets/images/wappen-talborn.png',
-        'lore' => 'Wer aus dem Kronland kommt, weiß genau, was das Maß aller Dinge ist. Disziplin und Ordnung sind nicht Tugend, sondern Grundlage – die Seele des Reiches trägt das Herz des Soldaten. Talborn, die Hauptstadt, erhebt sich über sanfte Felder und schiffbare Flüsse: Terrassenwälle, Glockentürme, Bollwerke und zeremonielle Plätze prägen das Bild. Im Hafen liegen Handelsschiffe neben der Kriegsflotte. Die Kriegerakademie bildet seit Generationen die Elite des Reiches aus. Freyhafen, die zweitgrößte Stadt, ist ein privilegierter Handelsknotenpunkt – selbstverwaltende Kaufmannsgilden tauschen Waren mit der weiten Welt. In den Vororten und Garnisonen spürt man die imperialen Wehrbereiche: Vier Militärdistrikten mit großen Garnisonskräften schützen das Reich nach innen und außen. Jenseits der gesicherten Gebiete lauern Goblins, Trolle, Verderbtheit und Räuber. Das Reich exportiert Erze, Waffen, Präzisionsarbeit und edles Mithril.'),
-    array('id' => 'siegeshain', 'name' => 'Siegeshain', 'schlagwort' => 'Wein, Etikette & Duelle',
-        'beschreibung' => 'Siegeshain ist die Präfektur der Kultiviertheit – Wein, Mode und unerschütterliche Fassung unter Druck. Wer hier aufwächst, lernt: Kleidung ist Sprache, Schweigen ist Stärke.',
+    array('id' => 'talborn', 'name' => 'Kronland Talborn',
+        'schlagwort' => 'Herz des Reiches, Reichsnorm & Amtssiegel',
+        'beschreibung' => 'Das Kronland Talborn ist der verdichtete Kern des Kaiserreichs – direkt von Kaiser und Reichsverwaltung geführt, Sitz von Kaiserhof, Kriegerakademie und Bund der Klingen. Hier wird der Maßstab aller Dinge gesetzt.',
+        'kultur' => array('Reichsverwaltung', 'Militärische Disziplin', 'Kriegshandwerk', 'Ordnung & Norm'),
+        'besonderheiten' => 'Heimat der Quiriner Kriegerakademie (auf dem alten Teramar-Schlachtfeld) und des Bundes der Klingen. Die Hauptstadt Talborn ist Reichshafen und größte befestigte Stadt des Reiches mit Kaiserpalast und Lichtdom. Freyhafen ist privilegierte Handelsfreistadt, Hammerklang die zwergische Minen- und Bergstadt im Gebirge.',
+        'farbe' => '#8E7023',
+        'lore' => 'Wer aus dem Kronland stammt, weiß genau, was das Maß aller Dinge ist. Gepflasterte Reichswege, geeichte Gewichte und Wachen an jedem Knotenpunkt zeigen: Ordnung ist hier Alltag, nicht Ideal. Die Hauptstadt Talborn erhebt sich wie eine Krone aus hellem Stein über dem Hafen – Terrassen und Mauerringe gestaffelt, schwarz-goldene Banner an Toren und Amtsgebäuden, der Lichtdom mit goldener Kuppel unterhalb des Kaiserpalastes. Drei Tagesreisen entfernt bildet die Quiriner Kriegerakademie seit der Reichsgründung die Offiziere des Reiches aus, seit fünfundzwanzig Jahren auch Nicht-Quiriner. Eine Tagesreise weiter wacht der Bund der Klingen über die Kampfkunst selbst und prüft Gesellen wie Meister. Freyhafen, kaiserlich privilegierte Freistadt und zweitgrößte Stadt Quirins, wird von einem Gildenrat regiert – ohne adligen Vogt, dafür mit Söldnern, Schmugglern und Hehlern im Schatten des Wohlstands. Im Gebirge liegt Hammerklang, die Bergstadt der Zwerge unter dem Rat der drei Hämmer, deren Lex Zwergia eigene Gerichtsbarkeit sichert und deren Mithril reichsweit als Gütesiegel gilt. Die Kampfkunst des Kronlands, „Alles ist Basis", setzt mit langem Schwert, Seitenschwert und Dolch den Reichsstandard, den alle anderen Traditionen in sich tragen. Gegenüber Elfen herrscht durch den Hochwaldkonflikt Misstrauen, gegenüber Zwergen und Halblingen Respekt.'),
+    array('id' => 'siegeshain', 'name' => 'Siegeshain',
+        'schlagwort' => 'Rotwein, Etikette & Duellkunst',
+        'beschreibung' => 'Siegeshain ist die südliche Präfektur der Kultiviertheit – Rotwein, Mode und unerschütterliche Fassung unter Druck. Wer hier aufwächst, lernt: Kleidung ist Sprache, Haltung ist Stärke.',
         'kultur' => array('Weinbaukultur', 'Etikette & Mode', 'Duellkultur', 'Composure'),
-        'besonderheiten' => 'Die Küstenregion liegt im Morgennebel vom Meer. Tiberes, die Hauptstadt, vereint Akademien, Häfen und Märkte. Das Wahrzeichen Siegeshains ist die "Stille Würde" – wer Kontrolle verliert, hat schon entschieden.',
-        'farbe' => '#6E8FA6', 'wappen' => '/assets/images/wappen-siegeshain.png',
-        'lore' => 'Wer aus Siegeshain kommt, ist bekannt als jemand, der selbst unter Druck nie die Fassung verliert und stets die neueste Mode trägt. Die Weinreben ziehen sich an den Küstenhängen entlang, der Morgennebel vom Meer kriecht durch die Täler. In Tiberes vereinen sich Akademien, Häfen und Märkte zu einem Bild gepflegter Eleganz. Kleidung ist hier Sprache – jede Wahl ein Statement. Die Duellkultur Siegeshains ist berühmt: Man kämpft mit Präzision, nicht mit Lärm. "Der Stille Geist lehrt: Wer unter Druck die Kontrolle verliert, hat bereits entschieden." So lautet das Sprichwort, das Generationen von Siegeshainern geprägt hat.'),
-    array('id' => 'waldestrutz', 'name' => 'Waldestrutz', 'schlagwort' => 'Wälder, Wildnis & Langbögen',
-        'beschreibung' => 'Dichte Wälder, abgelegene Pfade und das Gesetz des langen Bogens – Waldestrutz ist das Reich derer, die zwischen den Bäumen zu Hause sind.',
+        'besonderheiten' => 'Burg Siegeshain thront als Verwaltungssitz über dem Land. Tiberes, Hafen-, Handels- und Universitätsstadt, vereint Schwertschulen, die Akademie der Gehobenen Künste und Märkte. Reichsweit bekannt sind der Siegeshainer Rotwein und die Goldminen der Hügelzüge.',
+        'farbe' => '#6E8FA6',
+        'lore' => 'Wer aus Siegeshain kommt, gilt als jemand, der selbst unter Druck nie die Fassung verliert und stets die neueste Mode trägt. Die Weinreben ziehen sich an den Küstenhängen entlang, der Morgennebel vom Meer kriecht flussaufwärts durch die Täler und legt sich wie ein heller Schleier auf Reben und Obstgärten. In Tiberes vereinen sich Akademien, Häfen und Märkte zu einem Bild gepflegter Eleganz: Fechtvorführungen und Duellabsprachen auf den Plätzen, Frachtlisten und Zunftpreise an den Kais. Form ist hier keine Zier, sondern Kompetenz – man grüßt korrekt, wählt Worte mit Bedacht und zeigt Gefühle nur, wenn es der Situation dient. Mode ist ein gesellschaftliches Instrument: Schnitte und Farben werden in Siegeshain „gesetzt" und andernorts kopiert. Duelle sind sozial akzeptierte Bühne, doch an Protokoll gebunden – nicht Lautstärke entscheidet, sondern Haltung. Die Kampfkunst „Der Ruhige Geist" trainiert genau das: langes Schwert, Seitenschwert und Dolch, geübt im Duellprotokoll, bis Ruhe zur Gewohnheit wird. Gefahr lauert seltener in der Wildnis als im Menschen selbst – Intrigen und Duellspiralen machen Ehre zur Waffe, begleitet von Fälschungen und Überfällen auf Wein- und Goldtransporte.'),
+    array('id' => 'waldestrutz', 'name' => 'Waldestrutz',
+        'schlagwort' => 'Dichte Wälder, leise Wege & lange Bögen',
+        'beschreibung' => 'Waldestrutz ist die nördliche Grenzmark Efarims – dichte Wälder, der elfische Hochwald als ständiger Nachbar und das Gesetz des langen Bogens. Hier ist zu Hause, wer wenig redet und viel sieht.',
         'kultur' => array('Bogenschießen', 'Waldläuferei', 'Naturnähe', 'Eigenständigkeit'),
-        'besonderheiten' => 'Weitgehend unerschlossenes Waldgebiet mit verstreuten Siedlungen. Die Waldestrutz-Bogenschützen gelten als die treffsichersten im Reich.',
-        'farbe' => '#6B9672', 'wappen' => '/assets/images/wappen-waldestrutz.png',
-        'lore' => 'Wer aus Waldestrutz kommt, versteht die Sprache des Waldes besser als die der Städte. Hier zählen Ausdauer, Geduld und ein gutes Auge mehr als Rang und Titel. Die dichten Forste bieten Schutz und Nahrung, aber auch Gefahr – Trolle und schlimmere Dinge lauern in den Tiefen. Die Bogenschützen von Waldestrutz sind legendär: Man sagt, ein guter Waldläufer trifft eine Münze auf hundert Schritt. Die Gemeinschaften sind klein, eng verbunden und argwöhnisch gegenüber Fremden – aber treu wie Eichenholz gegenüber denen, denen sie vertrauen.'),
-    array('id' => 'roon', 'name' => 'Roon', 'schlagwort' => 'Häfen, Grenzen & Soldatentum',
-        'beschreibung' => 'Roon ist das Grenzland des Reiches – raue Hafenstädte, harte Männer und Frauen, und ein Wille aus Stahl, der die Grenze hält.',
+        'besonderheiten' => 'Burg Waldestrutz ist Verwaltungssitz und Gericht für Holz-, Jagd- und Grenzfragen. Großwattburg an der Nordküste ist Brückenkopf nach Roon und Stützpunkt der Nordostflotte. Aus dem Hochwald sickern über stille Pfade seltene Hölzer und Textilien ins Reich.',
+        'farbe' => '#6B9672',
+        'lore' => 'Wer aus Waldestrutz kommt, gilt als jemand, der wenig redet, klare Grenzen kennt und immer einen Weg findet, wo andere nur Wald sehen. Dichte Wälder überziehen Hügelketten und Senken, aus dem Hochwald speisen klare Bäche die Täler, und wer vom markierten Pfad tritt, verliert schnell Richtung und Zeit. Die Menschen hier sind bodenständig und zurückhaltend – Gastfreundschaft ist schlicht, Prahlerei selten, aber Absprachen werden erinnert. Der Alltag ist Forst und Jagd, Wegepflege, Grenzdienst und Handwerk: Holz wird geschlagen, Harz gesiedet, Fleisch geräuchert. Aus dieser Lebensweise ist die Kampfkunst „Hinter den Blättern" hervorgegangen, mit dem Leitgedanken „Triff und Verschwinde" – der Bogen eröffnet, das lange Messer beendet, der Dolch dient engsten Distanzen. Gefährlich ist vor allem die Reibung an der Grenze: Illegale Rodungen, Wilderei und Schwarzhandel treiben Vergeltungsspiralen mit den Waldelfen an, während in den tiefen Beständen Waldgeister als Irrlichter und Stimmen im Unterholz umgehen. Reichsweit steht Waldestrutz für langsam gewachsenes Kernholz, begehrt für Bogenbau, dazu Harz, Pech und dunklen Harzhonig.'),
+    array('id' => 'roon', 'name' => 'Roon',
+        'schlagwort' => 'Frontland, Portwein & eiserner Wille',
+        'beschreibung' => 'Roon ist eine große Insel im Nordosten und die jüngste Präfektur des Reiches – lebendige Küstenorte, dahinter das stille Frontland zur Waldkante, wo die Schwarze Garde gegen die Blutschatten kämpft.',
         'kultur' => array('Maritim', 'Militärisch', 'Pragmatisch', 'Grenzbewusstsein'),
-        'besonderheiten' => 'Wichtiger Handels- und Militärhafen. Roon-Söldner sind im ganzen Reich für ihre Verlässlichkeit bekannt.',
-        'farbe' => '#5C7A8A', 'wappen' => '/assets/images/wappen-roon.png',
-        'lore' => 'Wer aus Roon kommt, hat gelernt, dass das Meer kein Versprechen kennt – nur den Wind und die Gezeiten. Die Hafenstädte Roons sind laut, lebendig und gefährlich. Händler und Piraten sind hier oft dasselbe, und die Grenzgarnisonen halten mit harter Hand, was das Reich beansprucht. Roon-Soldaten gelten als die zuverlässigsten Söldner im Reich – nicht die elegantesten, aber die, die durchhalten.'),
-    array('id' => 'trident', 'name' => 'Trident', 'schlagwort' => 'Wasser, Glas & Kunst',
-        'beschreibung' => 'Trident liegt an einem Netz von Flüssen und Kanälen. Hier entstehen die schönsten Glaswaren und Kunstwerke des Reiches.',
+        'besonderheiten' => 'Schwarzburg ist Verwaltungssitz und Grenzpunkt der Insel – Tor zur Küste im Westen, Tor zur Front im Osten. An der Waldkante hält die Schwarze Garde eine Linie aus Wällen, Gräben und Türmen gegen den Zauberwald.',
+        'farbe' => '#5C7A8A',
+        'lore' => 'Wer aus Roon kommt, gilt als jemand, der standhält, wenn andere weichen, und im entscheidenden Moment handelt, ohne zu zögern. Erst seit wenigen Jahrzehnten besiedelt, trägt die Insel noch die Narben der Wattwallschlacht – Untiefen und schwarze Wrackreste vor der Westküste. Die Küstenorte sind jung, geschäftig und meist aus Holz gebaut, doch je weiter man ins Landesinnere kommt, desto stiller und kontrollierter wird es, bis der Zauberwald beginnt: ein von der Finsternis berührter Forst, der als offene Drohung über dem Land liegt. Die Menschen Roons zeichnen ein ausgeprägter Stolz und ein starkes Wir-Gefühl aus – sie haben die Insel mit eigenen Händen aufgebaut und eine Invasion abgewehrt. Aus dieser Haltung wuchs die Kampfkunst „Ein Hau" mit dem Leitsatz „Entscheide mit einem Hieb", getragen von langem Schwert und Seitenschwert. Die größte Bedrohung bleibt der Zauberwald: Nachts kommen Blutschatten-Stämme, die den Wald als heiliges Jagdgebiet betrachten, verschleppen Siedler und opfern sie in blutigen Ritualen. Reichsweit bekannt ist Roon für Portwein aus kühlen Felskellern, für Erz, Gold und seltenes, extrem hartes Holz von der Waldkante.'),
+    array('id' => 'trident', 'name' => 'Trident',
+        'schlagwort' => 'Wasser, Glas & Kunst',
+        'beschreibung' => 'Trident liegt im Nordwesten Quirins – ein Gürtel aus Inselkernen, Riffen und Kanälen, der wie ein Dreizack ins Meer greift. Hier entstehen die feinsten Glaswaren und Kunstwerke des Reiches.',
         'kultur' => array('Glaskunst', 'Handwerk', 'Handel', 'Ästhetik'),
-        'besonderheiten' => 'Die Glasmeister von Trident sind legendär. Ihre Werke schmücken die Paläste des Reiches und werden bis ans Ende der Welt gehandelt.',
-        'farbe' => '#4A8AA0', 'wappen' => '/assets/images/wappen-trident.jpeg',
-        'lore' => 'Wer aus Trident kommt, sieht die Welt durch das Prisma der Schönheit. Die Kanäle spiegeln die Himmel, und in den Werkstätten der Glasmeister entsteht das Licht selbst in Farben. Trident ist Handelszentrum und Kunstmetropole in einem – die Reichen des Reiches wetteifern um die kostbarsten Stücke, und die Händler kennen den Wert jeder Ware bis auf den letzten Kupferpfennig.'),
-    array('id' => 'nebelwacht', 'name' => 'Nebelwacht', 'schlagwort' => 'Leuchtturmfeuer, Salz & Tiefen',
-        'beschreibung' => 'Die nördlichste Präfektur liegt im ewigen Nebel. Leuchtturm-Wächter, Salzhändler und solche, die das Meer fürchten und lieben, nennen es Heimat.',
+        'besonderheiten' => 'Stadt Trident ist Verwaltungssitz und Herz des Glas- und Lichthandwerks, mit der berühmten Kunstakademie für Malerei, Bildhauerei und Glasgestaltung. Beranshafen im Süden ist Stützpunkt der Nordwestflotte.',
+        'farbe' => '#4A8AA0',
+        'lore' => 'Wer aus Trident kommt, gilt als innovativ und als jemand, für den Funktionalität und Schönheit kein Widerspruch sind. Kanäle, Stege und Pfahlbauten prägen den Norden – Wasserstraßen laufen wie Gassen zwischen den Häusern, und am Abend wirken die Kanäle wie flüssiges Glas, weil jede Laterne sich doppelt im Wasser spiegelt. In den Werkstätten der Glasmeister entstehen Mosaike, Leuchten und Spiegeltafeln, und Tridenter Linsen gelten als verlässlich auf See. Die Menschen Tridents sind Schöngeister mit praktischem Blick: neugierig, vorwärtsgewandt, stets auf der Suche nach der klareren Lösung, denn Ästhetik gilt hier als Form von Ordnung. Ihre Kampfkunst „Immer im Fluss" trainiert fließende Übergänge mit Seitenschwert oder langem Messer und Dolch – Spiegel dienen dabei als Hilfsmittel, um die Zentrallinie zu prüfen. Gefahren entstehen aus Küste und Wildnis zugleich: Riffe und Strömungen machen Fehler teuer, in warmen Nächten soll der Gesang von Sirenen über stilles Wasser tragen, und in den Kanälen wühlen Rattlinge. Reichsweit steht Trident für Glas und Spiegel, Linsen und Leuchten, Mosaike und feines Kunsthandwerk.'),
+    array('id' => 'nebelwacht', 'name' => 'Nebelwacht',
+        'schlagwort' => 'Leuchtfeuer, Salz & dunkle Tiefen',
+        'beschreibung' => 'Nebelwacht ist die äußerste Westpräfektur und flankiert den Seezugang nach Efarim – zerklüftete Küsten unter grauem Schleier, heiße Quellen und ein Höhlenlabyrinth voller dunkler Tiefen.',
         'kultur' => array('Mystik', 'Seefahrt', 'Isolation', 'Tradition'),
-        'besonderheiten' => 'Nebelwacht ist bekannt für sein Salz, seine Leuchtturmketten und die Gerüchte über Dinge, die in den Tiefen des Meeres hausen.',
-        'farbe' => '#4A6070', 'wappen' => '/assets/images/wappen-nebelwacht.jpeg',
-        'lore' => 'Wer aus Nebelwacht kommt, spricht wenig und weiß viel. Der Nebel ist hier keine Einschränkung – er ist ein alter Freund. Die Leuchtturm-Wächter kennen jeden Fels, jede Strömung, jeden tückischen Gezeiten-Wirbel. Das Salz der Nebelwacht ist das beste im Reich, und die Geschichten, die die Fischer erzählen, werden anderswo als Märchen abgetan – hier gelten sie als Warnung.'),
-    array('id' => 'argent', 'name' => 'Argent', 'schlagwort' => 'Silber, Musik & Glocken',
-        'beschreibung' => 'Argent ist das kulturelle Herz des Reiches – Silberminen, Musikakademien und der Klang von Glocken, der durch die Täler hallt.',
-        'kultur' => array('Musik', 'Handwerk', 'Religiosität', 'Bildung'),
-        'besonderheiten' => 'Die Glockentürme Argents sind im ganzen Reich zu hören. Die Silberakademie bildet Musiker und Gelehrte aus.',
-        'farbe' => '#A0A0B0', 'wappen' => '/assets/images/wappen-argent.png',
-        'lore' => 'Wer aus Argent kommt, trägt die Musik in sich. Die Silberminen liefern das Metall für die feinsten Instrumente, und die Akademien lehren Töne, die Götter und Menschen berühren. Die Glocken Argents haben eine besondere Qualität – sie sollen Böses fernhalten und Gutes herbeirufen. So sagen die Alten.'),
-    array('id' => 'sturmkap', 'name' => 'Sturmkap', 'schlagwort' => 'Wölfe, Wind & Seile',
-        'beschreibung' => 'Die raue Nordspitze des Reiches – ewige Stürme, Wolfsjäger und Männer, die an Seilen leben oder sterben.',
-        'kultur' => array('Kletterei', 'Jagd', 'Ausdauer', 'Rauheit'),
-        'besonderheiten' => 'Sturmkap liefert die besten Kletterer und Seiler des Reiches. Die Wolfsjagd ist hier Tradition und Notwendigkeit zugleich.',
-        'farbe' => '#8A7A6A', 'wappen' => '/assets/images/wappen-sturmkap.png',
-        'lore' => 'Wer aus Sturmkap kommt, lächelt über Klagen über schlechtes Wetter. Was anderswo als Sturm gilt, ist hier ein milder Frühlingswind. Die Klippen, die Wölfe, die Seile – das ist das Leben. Sturmkap-Männer und -Frauen sind in der ganzen Welt als die zuverlässigsten Kletterführer bekannt, und ihre Seile gelten als die stärksten, die es gibt.'),
+        'besonderheiten' => 'Der Tempelleuchtturm der Hauptstadt Nebelwacht ist zugleich Heiligtum, Signal und Zuflucht über den Salzklippen. In den Höhlentiefen wacht eine Bannkapelle des Lichts gegen die Finsternis, während Magier aus Arkapur die Strömungen des Schleiers beobachten.',
+        'farbe' => '#4A6070',
+        'lore' => 'Wer aus Nebelwacht kommt, gilt als jemand, der auch ohne mit den Augen zu sehen sicher seinen Weg findet. Kalte Strömungen treffen hier auf heiße Quellen, Dampf steigt aus Spalten, und Gischt und Nebel nehmen die Sicht und verschlucken Geräusche. Unter den steil ins Meer brechenden Klippen beginnt ein Höhlen- und Stollenlabyrinth, das nur bei Ebbe oder über riskante Pfade erreichbar ist. Die Menschen hier gelten als misstrauisch, ihr Humor ist schwarz und trocken – nicht aus Grausamkeit, sondern als Schutz gegen das, was man nachts im Nebel zu sehen glaubt. Aus dieser Landschaft ist eine Kampfkultur entstanden, die nicht auf Sicht vertraut, sondern auf Kontakt: „Führung durch Fühlen", mit Seitenschwert oder langem Messer und Dolch, trainiert im Blindgang über die Bindung. In den Tiefen der Höhlen liegt eine Bannkapelle des Lichts, deren ewige Flammen als Bollwerk gegen die Finsternis dienen, denn dort treiben ertrunkene Leichenfresser und Geisterstimmen umher. Reichsweit steht Nebelwacht für Schleierware – alchimistische Kräuter, Harze, Tinkturen und Bannpulver, dazu Räucherfisch und schwarzes Klippensalz.'),
+    array('id' => 'argent', 'name' => 'Argent',
+        'schlagwort' => 'Silber, Musik & Glockenklang',
+        'beschreibung' => 'Argent ist eine südwestliche Inselpräfektur, geformt von Gestein und Sonne – Silberminen im rauen Norden, Oliven- und Weingärten im sanften Süden, und über allem der Klang der Glocken.',
+        'kultur' => array('Musik', 'Handwerk', 'Präzision', 'Festkultur'),
+        'besonderheiten' => 'Stadt Argent im Norden ist Festung und Werk zugleich – ihr großer Tempel mit offener Glockenhalle prägt den Glockenguss als Kunstform. Sita im Süden ist geschäftiger Handelshafen voller Musik.',
+        'farbe' => '#A0A0B0',
+        'lore' => 'Wer aus Argent kommt, gilt als jemand, der alles ganz genau nimmt. Der Silberrücken, ein trockener Höhenzug, trennt die kargen, minenreichen Nordhänge von den weichen Landschaften im Süden mit Olivenbäumen, Zitrusplantagen und Weingärten – und selbst die Nächte tragen den fernen Nachhall von Glocken. In Stadt Argent ist Glockenguss nicht bloß Handwerk, sondern Kunst: Metall, Form und Nachklang werden geprüft, bis der Ton vollkommen sitzt. Die Menschen gelten als hochpräzise und penibel, stolz auf saubere Arbeit – doch trotz aller Selbstdisziplin kennt die Insel Freude, wenn Feste musikalisch, farbig und voller Gesang gefeiert werden. Die Kampfkunstphilosophie „Innere Stille" mit dem Lehrsatz „Keine Unruhe" schult mit Seitenschwert, langem Messer und Dolch die Körperbeherrschung bis in die kleinste Bewegung. Gefahr droht aus Tiefe, Küste und Gier: Trolle und Goblinbanden in den Minen, Sirenen auf See, vor allem aber Hehlerketten und organisiertes Verbrechen, das auf Silber und Schmuck zielt. Reichsweit steht Argent für Silber, insbesondere Klangsilber, für Glocken, Instrumente und Zitrusfrüchte.'),
+    array('id' => 'sturmkap', 'name' => 'Sturmkap',
+        'schlagwort' => 'Wölfe, Wind & Wellen',
+        'beschreibung' => 'Sturmkap liegt im Südwesten Quirins – ein Land aus Kaps und Klippen, windgezeichneten Küsten und blau-weißen Mosaiken, in dem der Wind selten stillsteht.',
+        'kultur' => array('Seefahrt', 'Ausdauer', 'Handwerk', 'Rauheit'),
+        'besonderheiten' => 'Burg Sturmkap, halb in den Fels gehauen, ist das Herz der Präfektur; darunter liegt der Hauptstützpunkt der Südwestflotte. Rundum klammern sich Kapsiedlungen und Fischorte an Buchten und Steinriegel.',
+        'farbe' => '#8A7A6A',
+        'lore' => 'Wer aus Sturmkap kommt, gilt als jemand, der einfach alles aushält. Der Wind fährt hier über nackten Stein, zerrt an Segeln und drückt Schiffe gegen den Felsen – Dächer werden mit Steinen beschwert, und Wege folgen dem Boden, nicht dem Wunsch. Die Menschen gelten als robust, pflichtbewusst und wortkarg, doch hinter der Härte liegt Herzlichkeit: Wer friert oder Hunger leidet, wird aufgenommen, auch wenn es den Gastgebern selbst an Brot fehlt. Klart das Wetter auf, feiert man ausgelassene Tanzfeste mit Liedern und Branntwein. Aus dieser Haltung ist die Kampfkultur des „Brandungsfels" gewachsen, deren Leitgedanke „Halte Stand" lautet – trainiert wird auf Klippen und in der Brandungszone, unter Wellendruck und mit schwereren Übungswaffen, damit Technik auch unter Erschöpfung sitzt. Gefahr entsteht zuerst aus der Natur: Brandung, Klippen und plötzliche Stürme bestrafen jeden Fehler, an den Küsten streifen Küstenwölfe, auf den Klippen sitzen Sturmkrähen, und vereinzelt zeigt sich sogar ein Wyvern. Reichsweit steht Sturmkap für robuste Schleifsteine, Sturmkraut-Öl und würzigen Schafs- und Ziegenkäse.'),
 );
 
 $i = 0;
@@ -132,33 +102,59 @@ foreach ($regionen as $r) {
     update_field('field_region_kultur', implode("\n", $r['kultur']), $post_id);
     update_field('field_region_besonderheiten', $r['besonderheiten'], $post_id);
     update_field('field_region_farbe', $r['farbe'], $post_id);
-    $img_id = quirin_seed_import_theme_image($r['wappen']);
-    if ($img_id) update_field('field_region_wappen', $img_id, $post_id);
     WP_CLI::log("Region: {$r['name']} -> Post #{$post_id}");
 }
 
-// ── Zeitstrahl-Ereignisse ────────────────────────────────────────────────
+// ── Zeitstrahl-Ereignisse (Quelle: src/data/timeline.ts) ────────────────────
 $ereignisse = array(
-    array('id' => 'chaos-herden', 'jahr' => -330, 'titel' => 'Zeitalter der Chaos-Herden', 'typ' => 'katastrophe',
-        'beschreibung' => 'Vor der Reichsgründung herrschten die Chaos-Herden über das Land. Wilde Magie und Dunkelheit bedrohten alle Lebewesen.'),
-    array('id' => 'reichsgruendung', 'jahr' => 0, 'titel' => 'Gründung des Kaiserreiches Quirin', 'typ' => 'grundung',
-        'beschreibung' => 'Im Jahr 0 wird das Kaiserreich Quirin aus den Chaos-Herden befreit. Kaiser Quirin der Erste vereint die Stämme unter einem Banner und legt den Grundstein des Reiches.'),
-    array('id' => 'kriegerakademie', 'jahr' => 47, 'titel' => 'Gründung der Kriegerakademie', 'typ' => 'grundung',
-        'beschreibung' => 'Als magische Institutionen die Gesellschaft zu dominieren beginnen, gründen die Krieger als Gegenbewegung die Quiriner Kriegerakademie – eine exklusive Institution der Kriegerphilosophie.'),
-    array('id' => 'bund-der-klingen', 'jahr' => 112, 'titel' => 'Gründung des Bund der Klingen', 'typ' => 'grundung',
-        'beschreibung' => 'Der Bund der Klingen entsteht als Bruderschaft der besten Krieger des Reiches. Sie hüten die Kampfkünste und stellen sich in den Dienst des Kaisers.'),
-    array('id' => 'erste-grosse-expansion', 'jahr' => 180, 'titel' => 'Erste Große Expansion', 'typ' => 'krieg',
-        'beschreibung' => 'Das Kaiserreich expandiert unter Kaiser Aldric II. nach Westen und Norden. Die Präfekturen Roon und Sturmkap werden dem Reich eingegliedert.'),
-    array('id' => 'freyhafener-charta', 'jahr' => 430, 'titel' => 'Freyhafener Handelscharta', 'typ' => 'handel',
-        'beschreibung' => 'Freyhafen erhält durch kaiserliches Dekret das Privileg der Selbstverwaltung seiner Kaufmannsgilden. Eine neue Ära des Handels beginnt.'),
-    array('id' => 'weisse-pest', 'jahr' => 634, 'titel' => 'Die Weiße Pest', 'typ' => 'katastrophe',
-        'beschreibung' => 'Eine mysteriöse Seuche bricht aus dem Nebel auf und rafft ein Drittel der Bevölkerung hin. Piraterie und Söldnertum florieren in der Instabilität.'),
-    array('id' => 'hochwald-spannungen', 'jahr' => 701, 'titel' => 'Hochwald-Spannungen', 'typ' => 'krieg',
-        'beschreibung' => 'Die Elfen des Hochwalls und das Kaiserreich geraten in Konflikt über die Grenzen der imperialen Expansion in die alten Wälder.'),
-    array('id' => 'dunkle-kulte', 'jahr' => 820, 'titel' => 'Zeit der Dunklen Kulte', 'typ' => 'magie',
-        'beschreibung' => 'Im Schatten des Adels und der Kirche breiten sich dunkle Kulte aus. Adelsintrigen und magische Experimente bedrohen die Stabilität des Reiches.'),
-    array('id' => 'heute', 'jahr' => 826, 'titel' => 'Die Gegenwart – Jahr 826', 'typ' => 'dynastisch',
-        'beschreibung' => 'Das Kaiserreich steht vor neuen Herausforderungen. Adelsintrigen, Magie-Spannungen und äußere Bedrohungen fordern Krieger und Edle gleichermaßen. Eine neue Generation schreibt die Geschichte.'),
+    array('id' => 'mythische-vorzeit', 'jahr' => -200, 'titel' => 'Mythische Vorzeit: Velanor & Balaskra', 'typ' => 'Magie',
+        'beschreibung' => 'In mythischer Vorzeit ringt Velanor, der goldene Seelöwe des Lichts, mit Balaskra, der großen Schlange der Finsternis. Im „Ersten Sturm" wird Balaskra in die Tiefen der Meere verbannt – doch seine Verführung wirkt seither über Träume, Gedanken und Schwächen der Sterblichen.'),
+    array('id' => 'ankunft-quiriner', 'jahr' => -80, 'titel' => 'Ankunft der Quiriner', 'typ' => 'Gründung',
+        'beschreibung' => 'Nach dem Zerfall einer Piratenflotte führt Kapitän Quirin sein Volk, das sich fortan Quiriner nennt, in das Archipel. Erste Siedler nehmen Argent und Sturmkap in Besitz, und der Glaube an das Licht beginnt sich auszubreiten.'),
+    array('id' => 'elfenkriege-teramar', 'jahr' => -30, 'titel' => 'Elfenkriege & Schlacht von Teramar', 'typ' => 'Krieg',
+        'beschreibung' => 'Kurz vor der Zeitrechnung werden die Waldelfen in den Elfenkriegen aus dem Süden Efarims verdrängt. Die Schlachten bei Siegshain und auf dem Feld von Teramar gelten als vernichtende Niederlagen der Elfen. Waldestrutz entsteht als „Schild gegen den Wald".'),
+    array('id' => 'reichsgruendung', 'jahr' => 0, 'titel' => 'Gründung des Kaiserreiches Quirin', 'typ' => 'Gründung',
+        'beschreibung' => 'Tal Navalis, vom goldenen Seelöwen Velanor gesegnet, schlägt im Befreiungskrieg die Horden der Finsternis und eint das Archipel politisch zum Kaiserreich Quirin unter dem Haus Navalis. Die Quiriner Zeitrechnung „nach der Befreiung" (n.d.B.) beginnt.'),
+    array('id' => 'fruehe-institutionen', 'jahr' => 20, 'titel' => 'Kriegerakademie, Lex Zwergia & Reichskirche', 'typ' => 'Gründung',
+        'beschreibung' => 'In den ersten Jahrzehnten unter Kaiser Tal I. wird die Quiriner Kriegerakademie als Hausakademie des Hauses Navalis gegründet, die Lex Zwergia sichert Hammerklang eigene Gerichtsbarkeit, dem Hochwald wird Schutzgebietsstatus zugesprochen, und die Kirche des Lichts wird offizielle Reichskirche.'),
+    array('id' => 'expansion-nordwest', 'jahr' => 240, 'titel' => 'Eroberung von Trident und Nebelwacht', 'typ' => 'Krieg',
+        'beschreibung' => 'Kaiser Batho I., der Eroberer, sichert und gliedert das nordwestliche Archipel militärisch ein. Trident und Nebelwacht werden fest in die Reichsordnung eingebunden.'),
+    array('id' => 'grosser-waldaufstand', 'jahr' => 340, 'titel' => 'Der Große Waldaufstand', 'typ' => 'Krieg',
+        'beschreibung' => 'Verbündete Elfenstämme des Hochwaldes greifen mehrere Grenzfestungen und Kolonien an. Nach verlustreichen Kämpfen erzwingt die Reichsgarde neue Verträge – der Hochwald wird fortan strenger überwacht.'),
+    array('id' => 'grosse-pestepidemie', 'jahr' => 370, 'titel' => 'Große Pestepidemie', 'typ' => 'Katastrophe',
+        'beschreibung' => 'Eine Pestepidemie bricht in den Großstädten aus und verbreitet sich über ganz Quirin. Für seine Leistungen im Kampf gegen die Seuche wird dem Lichtpriester Johan der erste Tiberesorden verliehen.'),
+    array('id' => 'handelsfahrten-aurelia', 'jahr' => 450, 'titel' => 'Erste Handelsfahrten nach Aurelia', 'typ' => 'Handel',
+        'beschreibung' => 'Unter Batho II., dem Seefahrer, entstehen erste regelmäßige Kontakte und Handelsfahrten nach Aurelia und in die Söldnerstaaten des Ostkontinents. Handel, diplomatische Spannungen und Glaubensunterschiede prägen fortan die Außenpolitik.'),
+    array('id' => 'magierakademie-arkapur', 'jahr' => 460, 'titel' => 'Gründung der Magierakademie Arkapur', 'typ' => 'Magie',
+        'beschreibung' => 'Die Magierakademie Arkapur wird offiziell gegründet und ausgebaut und wird zum einzigen anerkannten Ausbildungsort für Magier. Ein Reichsedikt bindet alle akademischen Zauberer an Krone und Akademie.'),
+    array('id' => 'drachentoeter', 'jahr' => 489, 'titel' => 'Magnus I. bezwingt den Drachen', 'typ' => 'Magie',
+        'beschreibung' => 'Ein gewaltiger Drache wird durch eine Gruppe von Helden um Kaiser Magnus I., den Drachentöter, so schwer verwundet, dass er in die heutigen Glutklippen stürzt. Bis heute heißt es, er ruhe dort im Feuer gebannt.'),
+    array('id' => 'reichsreform-magnus2', 'jahr' => 600, 'titel' => 'Reichsreform unter Magnus II.', 'typ' => 'Dynastisch',
+        'beschreibung' => 'Nach einer schweren Thronfolgekrise und einem Bürgerkrieg geht Magnus II., der Erneuerer, als Sieger hervor. Die Provinzen der alten Kriegsfürsten werden abgeschafft, das Reich wird in Präfekturen, Dienstadel und Reichserzämter zentralisiert. Freyhafen wird als freie Handelsstadt bestätigt.'),
+    array('id' => 'edikt-gleichberechtigung', 'jahr' => 612, 'titel' => 'Edikt der Gleichberechtigung', 'typ' => 'Dynastisch',
+        'beschreibung' => 'Auf einer großen Reichssynode in Talborn erlässt Kaiser Magnus II. gemeinsam mit der Kirche des Lichts das Edikt der Gleichberechtigung: Vor dem Licht sind alle Seelen gleich. Formal stehen Frauen wie Männern des Reiches fortan alle Wege offen.'),
+    array('id' => 'waldelfenrebellion', 'jahr' => 640, 'titel' => 'Niederschlagung der Waldelfenrebellion', 'typ' => 'Krieg',
+        'beschreibung' => 'Die Anführerin der Waldelfenrebellen, Sanaria Sonnentau, wird gefangengenommen und zu lebenslanger Arbeit in den Schwarzen Minen verurteilt. Der Hochwald wandelt sich von offenem Schutzgebiet zu stark kontrolliertem Reservatsland.'),
+    array('id' => 'katastrophe-arkapur', 'jahr' => 670, 'titel' => 'Katastrophe von Arkapur', 'typ' => 'Magie',
+        'beschreibung' => 'Ein fehlgeschlagenes Ritual sprengt das Gebiet der Magierakademie durch eine Explosion vom Festland ab. Das folgende Seebeben verursacht eine gewaltige Flutwelle an den Küsten.'),
+    array('id' => 'kloakenkriege', 'jahr' => 745, 'titel' => 'Ende der Kloakenkriege', 'typ' => 'Krieg',
+        'beschreibung' => 'Nach Angriffen der Rattlinge und dem Einsturz eines Teils Talborns ertränkt der Kloakenzwerg Grimgrim den Rattlingkönig Gwiek Halbzahn. Das neue Talborn wird auf den eingestürzten Teilen der alten Stadt errichtet.'),
+    array('id' => 'schwarze-garde', 'jahr' => 798, 'titel' => 'Gründung der Schwarzen Garde', 'typ' => 'Gründung',
+        'beschreibung' => 'Erste Blutschatten werden im Zauberwald gesichtet, Siedler in Neuland werden überfallen und massakriert. Aufgrund der hohen Verluste im Kampf gegen die Blutschatten wird die Schwarze Garde gegründet.'),
+    array('id' => 'akademie-oeffnung', 'jahr' => 800, 'titel' => 'Kriegerakademie öffnet für Nicht-Quiriner', 'typ' => 'Dynastisch',
+        'beschreibung' => 'Batho III., der Große, wird zum Kaiser gekrönt. Im selben Jahr öffnet Akademieleiter Kapitän Morgen die Quiriner Kriegerakademie erstmals auch für Nicht-Quiriner – ein wichtiger Schritt hin zur Reichsidee als Exportgut.'),
+    array('id' => 'orkensturm', 'jahr' => 806, 'titel' => 'Der Orkensturm', 'typ' => 'Krieg',
+        'beschreibung' => 'Unter einem Großkhan aus dem Osten zieht ein großer Sturm der Mongrelorks heran. Durch Piraterie und Überfälle wird der gesamte Handel bedroht, bis Quirin in der Seeschlacht siegt – auf Kosten eines Großteils seiner Flotte.'),
+    array('id' => 'neulandkonflikt', 'jahr' => 810, 'titel' => 'Roderick spaltet Roon ab', 'typ' => 'Dynastisch',
+        'beschreibung' => 'Nachdem die Blutschatten aus dem Zauberwald verschwinden, erklärt sich Roderick von Neuland für unabhängig, benennt die Präfektur in Königreich Roon um und krönt sich selbst. Der Neulandkonflikt beginnt.'),
+    array('id' => 'wattwallschlacht', 'jahr' => 813, 'titel' => 'Die Wattwallschlacht', 'typ' => 'Krieg',
+        'beschreibung' => 'Großadmiral Corona von Quirin startet eine Invasion gegen Roon. Nach einer dreitägigen Schlacht werfen die Neuländer die Quiriner Invasionsflotte zurück ins Meer.'),
+    array('id' => 'bund-der-klingen', 'jahr' => 818, 'titel' => 'Gründung des Bund der Klingen', 'typ' => 'Gründung',
+        'beschreibung' => 'Mit dem kaiserlichen Privilegium Legis inter Gladii wird der Bund der Klingen gegründet. Reich und Schwertschulen werden eng verzahnt, Schwertmeistertitel und Schwertschulen stehen fortan unter Reichsaufsicht.'),
+    array('id' => 'weisse-pest', 'jahr' => 820, 'titel' => 'Die Weiße Pest', 'typ' => 'Katastrophe',
+        'beschreibung' => 'Eine verheerende Seuche bricht aus und rafft binnen dreier Jahre viele Menschenleben dahin, bevor sie 823 n.d.B. endet. Piraterie und Söldnertum florieren in der Instabilität dieser Jahre.'),
+    array('id' => 'heute', 'jahr' => 826, 'titel' => 'Die Gegenwart – Jahr 826', 'typ' => 'Dynastisch',
+        'beschreibung' => 'Quirin wirkt nach außen als starkes, reiches Kaiserreich unter Batho III., dem Großen. Im Inneren zehren jedoch die Nachwehen der Weißen Pest, Spannungen mit Roon und im Zauberwald, Hochwaldkonflikte und Adelsintrigen an der Reichsidee. Eine junge Prophetin des Lichts gilt vielen als Stimme einer kommenden geistlichen Erneuerung.'),
 );
 
 foreach ($ereignisse as $e) {
@@ -174,7 +170,7 @@ foreach ($ereignisse as $e) {
     WP_CLI::log("Ereignis: {$e['titel']} -> Post #{$post_id}");
 }
 
-// ── FAQ ───────────────────────────────────────────────────────────────────
+// ── FAQ (Quelle: src/pages/FAQ.tsx, fuer WooCommerce angepasst) ─────────────
 $faq = array(
     array('frage' => 'Was ist LARP?', 'antwort' => 'LARP steht für Live Action Role Playing – Lebendiges Rollenspiel. Teilnehmer schlüpfen in eine Rolle und spielen Szenarien in echten Kostümen und Kulissen aus. Im Gegensatz zu Pen-and-Paper-Rollenspielen passiert alles physisch: Kämpfe werden mit gepolsterten Waffen ausgefochten, Gespräche finden im Charakter statt.'),
     array('frage' => 'Was ist das Kaiserreich Quirin?', 'antwort' => 'Quirin ist ein Fantasy-LARP, das 1999 in Würzburg gegründet wurde. Es spielt in einem mittelalterlichen Fantasiereich, das Samurai-Philosophie mit europäischem Mittelalter kombiniert. Es gibt zwei Hauptspielzweige: das kämpferisch orientierte Kriegerspiel und das diplomatisch ausgerichtete Adelsspiel.'),
@@ -200,4 +196,4 @@ foreach ($faq as $f) {
     WP_CLI::log("FAQ: {$f['frage']} -> Post #{$post_id}");
 }
 
-WP_CLI::success('Regionen, Zeitstrahl-Ereignisse und FAQ befuellt.');
+WP_CLI::success('Regionen (8), Zeitstrahl-Ereignisse (24) und FAQ (9) befuellt.');

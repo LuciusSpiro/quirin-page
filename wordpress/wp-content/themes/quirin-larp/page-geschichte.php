@@ -10,6 +10,8 @@ function quirin_format_jahr($j) {
     return 'Jahr ' . $j . ' n.d.B.';
 }
 
+$header_bg = get_theme_file_uri('/assets/images/kernland.jpg');
+
 $typen = get_terms(array('taxonomy' => 'ereignis_typ', 'hide_empty' => false));
 
 $ereignisse_query = new WP_Query(array(
@@ -22,7 +24,7 @@ $ereignisse_query = new WP_Query(array(
 ?>
 
 <div class="page-geschichte">
-    <div class="page-header">
+    <div class="page-header" style="background-image: linear-gradient(rgba(11,11,13,0.74), rgba(11,11,13,0.94)), url('<?php echo esc_url($header_bg); ?>'); background-size: cover; background-position: center 35%;">
         <div class="container">
             <span class="section-label">Zeitstrahl</span>
             <h1 style="margin-top:8px;">Geschichte des Reiches</h1>
